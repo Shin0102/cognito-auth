@@ -34,6 +34,6 @@ export default {
     GroupName: process.env.GroupName,
     UserPoolId: process.env.UserPoolId,
     ClientId: process.env.ClientId,
-    UsernamePrefix: process.env.UsernamePrefix,
+    PasswordSecret: process.env.PasswordSecret,
   },
 };

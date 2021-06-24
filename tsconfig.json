@@ -1,21 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "lib": ["es2017", "esnext.asynciterable"],
-    "typeRoots": ["./node_modules/@types", "./src/types"],
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": true,
     "moduleResolution": "node",
     "module": "commonjs",
-    "pretty": true,
-    "sourceMap": true,
+    "lib": ["es2020"],
+    "target": "es2019",
     "outDir": "./build",
-    "allowJs": true,
-    "noEmit": false,
-    "esModuleInterop": true
+    "rootDir": "./src"
   },
-  "include": ["./src/**/*"],
+  "include": ["src/**/*.ts", "src/**/*.js"],
   "exclude": ["node_modules", "tests"]
 }

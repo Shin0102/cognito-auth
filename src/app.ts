@@ -1,11 +1,6 @@
 import express from 'express';
 import Logger from './loaders/logger';
-import { CognitoIdentityServiceProvider } from 'aws-sdk';
 import config from './config';
-const cognitoidentityserviceprovider = new CognitoIdentityServiceProvider({
-  apiVersion: '2016-04-18',
-  region: 'ap-northeast-2',
-});
 
 async function startServer() {
   const app = express();
