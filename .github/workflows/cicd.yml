@@ -1,0 +1,83 @@
+  
+name: CICD
+on:
+  push:
+    branches: 
+      - feature
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Set Dev env variables
+      if: endsWith(github.ref, '/feature')
+      run: |
+        echo "Feature branch"
+        echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+        echo "DESTINATION=dev/kakao-auth" >> $GITHUB_ENV
+        echo "BRANCH=feature" >> $GITHUB_ENV        
+    
+    - name: Set commit repo msg
+      env:
+        GITHUB_SHA: ${{ github.sha }}
+      run: |
+        echo "COMMIT_MSG=Update from https://github.com/e-veritime/cognito-kakao-auth/commit/$GITHUB_SHA" >> $GITHUB_ENV
+        echo $COMMIT_MSG        
+    #
+    # Push app image to ECR
+    #
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_VAL }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_VAL }}
+        aws-region: ap-northeast-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$ENVIRONMENT-$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$ENVIRONMENT-$IMAGE_TAG
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$ENVIRONMENT-$IMAGE_TAG"
+                
+    #
+    # Update Image tag to delployment.yaml
+    #
+    - name: Git config
+      run: |
+        git config --global user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
+                
+    - name: Check out k8s repo
+      uses: actions/checkout@master
+      with:
+        repository: e-veritime/gitops
+        token: ${{ secrets.GIT_ACCESS_TOKEN }}
+        
+    - name: chmod repo destination
+      run: |
+        chmod +x $DESTINATION
+        ls
+                
+    - name: git push image tag to k8 repo 
+      env:
+        GITHUB_REPO: ${{ github.repository.name }}
+        GITHUB_SHA: ${{ github.sha }}
+      run: |
+        sed -i -e 's@${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:.*@${{ steps.build-image.outputs.image }}@g' $DESTINATION/resources.yaml
+        git add .
+        git commit -m "$COMMIT_MSG"
+        git push -f --set-upstream origin main   
