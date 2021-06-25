@@ -25,7 +25,7 @@ export default {
    * API configs
    */
   api: {
-    prefix: '/',
+    prefix: '/auth/v1',
   },
   /**
    * AWS cognito
