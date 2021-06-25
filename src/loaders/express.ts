@@ -1,9 +1,7 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import cors from 'cors';
 import routes from '../api';
 import config from '../config';
-import { eventContext } from 'aws-serverless-express/middleware';
 
 export default ({ app }: { app: express.Application }) => {
   /**
@@ -38,9 +36,6 @@ export default ({ app }: { app: express.Application }) => {
 
   // Load API routes
   app.use(config.api.prefix, routes());
-
-  // For aws cognito
-  app.use(eventContext());
 
   /// catch 404 and forward to error handler
   app.use((req, res, next) => {
