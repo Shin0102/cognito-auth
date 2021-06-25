@@ -1,9 +1,7 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import cors from 'cors';
 import routes from '../api';
 import config from '../config';
-import { eventContext } from 'aws-serverless-express/middleware';
 
 export default ({ app }: { app: express.Application }) => {
   /**
@@ -34,13 +32,10 @@ export default ({ app }: { app: express.Application }) => {
   app.use(require('method-override')());
 
   // Middleware that transforms the raw string of req.body into json
-  app.use(bodyParser.json());
+  app.use(express.json());
 
   // Load API routes
   app.use(config.api.prefix, routes());
-
-  // For aws cognito
-  app.use(eventContext());
 
   /// catch 404 and forward to error handler
   app.use((req, res, next) => {
