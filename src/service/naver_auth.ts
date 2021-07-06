@@ -8,32 +8,47 @@ const cognitoidentityserviceprovider = new CognitoIdentityServiceProvider({
   region: 'ap-northeast-2',
 });
 
-export default class KakaoAuthService {
-  public async Auth(accessToken: string, query: any): Promise<string> {
-    const kakaoProfileApi = 'https://kapi.kakao.com/v2/user/me';
-    const headerOptions = {
+export default class NaverAuthService {
+  public async Auth(query: any): Promise<string> {
+    const clientId = config.naver.ClientId;
+    const clientSecret = config.naver.ClientSecret;
+
+    const naverAuthApi = `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${clientId}&client_secret=${clientSecret}&code=${query.code}&state=${query.state}`;
+
+    const axiosRes = await get(naverAuthApi);
+    if (axiosRes.data.error !== undefined) {
+      Logger.error('Get Naver AcessToken failed');
+      throw new Error('Get Naver AcessToken failed');
+    }
+
+    const naverProfileApi = 'https://openapi.naver.com/v1/nid/me';
+    const naverAuthOptions = {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${axiosRes.data.access_token}`,
       },
     };
-    const axiosRes = await get(kakaoProfileApi, headerOptions);
-    const { status, data } = axiosRes;
-    if (status > 200) {
+
+    const axiosProfileRes = await get(naverProfileApi, naverAuthOptions);
+
+    if (axiosProfileRes.data.error !== undefined) {
       Logger.error('Get kakao User failed');
       throw new Error('Get kakao User failed');
     }
+
+    const profileData = axiosProfileRes.data.response;
+
     if (query.type == 'signup') {
       // How to confirm user in Cognito User Pools without verifying email or phone?
       // https://stackoverflow.com/questions/47361948/how-to-confirm-user-in-cognito-user-pools-without-verifying-email-or-phone
-      const GroupName = 'kakao';
+      const GroupName = 'naver';
       const UserPoolId = config.cognito.UserPoolId;
       const ClientId = config.cognito.ClientId;
-      const Username = 'kakao_' + data.id.toString();
+      const Username = 'naver_' + profileData.id.toString();
       const phone = '+82' + query.pn.slice(1);
       const newUserParam = {
         ClientId,
         Username,
-        Password: `${config.kakao.PasswordSecret}_${data.id.toString()}`,
+        Password: `${config.naver.PasswordSecret}_${profileData.id.toString()}`,
         ClientMetadata: {
           UserPoolId,
           Username,
@@ -42,7 +57,7 @@ export default class KakaoAuthService {
         UserAttributes: [
           {
             Name: 'email' /* required */,
-            Value: data.kakao_account.email,
+            Value: profileData.email,
           },
           {
             Name: 'name' /* required */,
@@ -56,11 +71,11 @@ export default class KakaoAuthService {
       };
       try {
         await cognitoidentityserviceprovider.signUp(newUserParam).promise();
-        return data.id.toString();
+        return profileData.id.toString();
       } catch (err) {
         if (err.code == 'UsernameExistsException') {
           Logger.info('dojob user already sign up');
-          return data.id.toString();
+          return profileData.id.toString();
         } else {
           Logger.error(err.message);
           throw err;
@@ -70,18 +85,20 @@ export default class KakaoAuthService {
       try {
         var params = {
           UserPoolId: config.cognito.UserPoolId /* required */,
-          Filter: `username="kakao_${data.id.toString()}"`,
+          Filter: `username="naver_${profileData.id.toString()}"`,
         };
         const cognitoData = await cognitoidentityserviceprovider
           .listUsers(params)
           .promise();
 
-        if (cognitoData.Users.length > 0) return data.id.toString();
+        if (cognitoData.Users.length > 0) return profileData.id.toString();
         else return 'none';
       } catch (err) {
         Logger.error(err);
         throw err;
       }
     }
+
+    return 'none';
   }
 }
