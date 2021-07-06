@@ -13,7 +13,7 @@ export default class NaverAuthService {
     const clientId = config.naver.ClientId;
     const clientSecret = config.naver.ClientSecret;
 
-    const naverAuthApi = `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${clientId}&client_secret=${clientSecret}&code=${query.code}&state=${query.sstate}`;
+    const naverAuthApi = `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${clientId}&client_secret=${clientSecret}&code=${query.code}&state=${query.state}`;
 
     const axiosRes = await get(naverAuthApi);
     if (axiosRes.data.error !== undefined) {
