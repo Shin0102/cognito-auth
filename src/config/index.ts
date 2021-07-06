@@ -31,9 +31,19 @@ export default {
    * AWS cognito
    */
   cognito: {
-    GroupName: process.env.GroupName,
     UserPoolId: process.env.UserPoolId,
     ClientId: process.env.ClientId,
-    PasswordSecret: process.env.PasswordSecret,
+  },
+
+  kakao: {
+    GroupName: process.env.KakaoGroupName,
+    PasswordSecret: process.env.KakaoPasswordSecret,
+  },
+
+  naver: {
+    ClientId: process.env.NaverClientId,
+    ClientSecret: process.env.NaverClientSecret,
+    GroupName: process.env.NaverGroupName,
+    PasswordSecret: process.env.NaverPasswordSecret,
   },
 };

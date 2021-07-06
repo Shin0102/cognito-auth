@@ -4,34 +4,33 @@ import Logger from '../loaders/logger';
 import config from '../config';
 
 const cognitoidentityserviceprovider = new CognitoIdentityServiceProvider({
-  accessKeyId: 'AKIATQXFTHZOM22MSSDM',
-  secretAccessKey: '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',
   apiVersion: '2016-04-18',
   region: 'ap-northeast-2',
 });
 
 export default class NaverAuthService {
   public async Auth(query: any): Promise<string> {
-    const clientId = 'RuBr3N1LvRfIO_cm76_8';
-    const clientSecret = 'Cx8OZ13q8R';
+    const clientId = config.naver.ClientId;
+    const clientSecret = config.naver.ClientSecret;
 
-    const naverAuthUrl = `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${clientId}&client_secret=${clientSecret}&code=${query.code}&state=${query.sstate}`;
+    const naverAuthApi = `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${clientId}&client_secret=${clientSecret}&code=${query.code}&state=${query.sstate}`;
 
-    const axiosRes = await get(naverAuthUrl);
-    if (axiosRes.status > 200) {
+    const axiosRes = await get(naverAuthApi);
+    if (axiosRes.data.error !== undefined) {
       Logger.error('Get Naver AcessToken failed');
       throw new Error('Get Naver AcessToken failed');
     }
 
-    const naverProfileUrl = 'https://openapi.naver.com/v1/nid/me';
+    const naverProfileApi = 'https://openapi.naver.com/v1/nid/me';
     const naverAuthOptions = {
       headers: {
         Authorization: `Bearer ${axiosRes.data.access_token}`,
       },
     };
 
-    const axiosProfileRes = await get(naverProfileUrl, naverAuthOptions);
-    if (axiosProfileRes.status > 200) {
+    const axiosProfileRes = await get(naverProfileApi, naverAuthOptions);
+
+    if (axiosProfileRes.data.error !== undefined) {
       Logger.error('Get kakao User failed');
       throw new Error('Get kakao User failed');
     }
@@ -41,7 +40,7 @@ export default class NaverAuthService {
     if (query.type == 'signup') {
       // How to confirm user in Cognito User Pools without verifying email or phone?
       // https://stackoverflow.com/questions/47361948/how-to-confirm-user-in-cognito-user-pools-without-verifying-email-or-phone
-      const GroupName = 'naver';
+      const GroupName = config.naver.GroupName;
       const UserPoolId = config.cognito.UserPoolId;
       const ClientId = config.cognito.ClientId;
       const Username = 'naver_' + profileData.id.toString();
@@ -49,7 +48,7 @@ export default class NaverAuthService {
       const newUserParam = {
         ClientId,
         Username,
-        Password: config.cognito.PasswordSecret + profileData.id.toString(),
+        Password: `${config.naver.PasswordSecret}_${profileData.id.toString()}`,
         ClientMetadata: {
           UserPoolId,
           Username,
@@ -86,7 +85,7 @@ export default class NaverAuthService {
       try {
         var params = {
           UserPoolId: config.cognito.UserPoolId /* required */,
-          Filter: `username="kakao_${profileData.id.toString()}"`,
+          Filter: `username="naver_${profileData.id.toString()}"`,
         };
         const cognitoData = await cognitoidentityserviceprovider
           .listUsers(params)

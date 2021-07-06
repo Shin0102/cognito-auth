@@ -10,13 +10,13 @@ const cognitoidentityserviceprovider = new CognitoIdentityServiceProvider({
 
 export default class KakaoAuthService {
   public async Auth(accessToken: string, query: any): Promise<string> {
-    const kakaoAuthUrl = 'https://kapi.kakao.com/v2/user/me';
-    const kakaoAuthOptions = {
+    const kakaoProfileApi = 'https://kapi.kakao.com/v2/user/me';
+    const headerOptions = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     };
-    const axiosRes = await get(kakaoAuthUrl, kakaoAuthOptions);
+    const axiosRes = await get(kakaoProfileApi, headerOptions);
     const { status, data } = axiosRes;
     if (status > 200) {
       Logger.error('Get kakao User failed');
@@ -25,7 +25,7 @@ export default class KakaoAuthService {
     if (query.type == 'signup') {
       // How to confirm user in Cognito User Pools without verifying email or phone?
       // https://stackoverflow.com/questions/47361948/how-to-confirm-user-in-cognito-user-pools-without-verifying-email-or-phone
-      const GroupName = config.cognito.GroupName;
+      const GroupName = config.kakao.GroupName;
       const UserPoolId = config.cognito.UserPoolId;
       const ClientId = config.cognito.ClientId;
       const Username = 'kakao_' + data.id.toString();
@@ -33,7 +33,7 @@ export default class KakaoAuthService {
       const newUserParam = {
         ClientId,
         Username,
-        Password: config.cognito.PasswordSecret + data.id.toString(),
+        Password: `${config.kakao.PasswordSecret}_${data.id.toString()}`,
         ClientMetadata: {
           UserPoolId,
           Username,
@@ -84,25 +84,4 @@ export default class KakaoAuthService {
       }
     }
   }
-
-  // private async getCognitoToken(username: string, password: string) {
-  //   try {
-  //     var params = {
-  //       AuthFlow: 'USER_PASSWORD_AUTH',
-  //       ClientId: config.cognito.ClientId,
-  //       AuthParameters: {
-  //         USERNAME: username,
-  //         PASSWORD: password,
-  //       },
-  //     };
-  //     const data = await cognitoidentityserviceprovider
-  //       .initiateAuth(params)
-  //       .promise();
-
-  //     return data.AuthenticationResult.AccessToken;
-  //   } catch (e) {
-  //     Logger.error(e.message);
-  //     throw e;
-  //   }
-  // }
 }
