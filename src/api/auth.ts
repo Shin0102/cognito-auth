@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { celebrate, Joi } from 'celebrate';
 import KakaoAuthService from '../service/kakao_auth';
+import NaverAuthService from '../service/naver_auth';
 
 const route = Router();
 
@@ -25,6 +26,15 @@ export default (app: Router) => {
       const { access_token } = req.body || {};
       const kakaoAuthInstance: KakaoAuthService = new KakaoAuthService();
       const id = await kakaoAuthInstance.Auth(access_token, req.query);
+      return res.status(201).json({ id: id });
+    })
+  );
+
+  route.post(
+    '/naver',
+    wrapAsync(async (req: Request, res: Response) => {
+      const naverAuthInstance: NaverAuthService = new NaverAuthService();
+      const id = await naverAuthInstance.Auth(req.query);
       return res.status(201).json({ id: id });
     })
   );
