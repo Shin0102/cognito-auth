@@ -19,10 +19,12 @@ jobs:
         touch .env
         echo PORT="3001" >> .env
         echo LOG_LEVEL="silly" >> .env
-        echo GroupName="kakao" >> .env
         echo UserPoolId=${{ secrets.USER_POOL_ID }} >> .env
         echo ClientId=${{ secrets.CLIENT_ID }} >> .env
-        echo PasswordSecret=${{ secrets.PASSWORD_SECRET }} >> .env
+        echo KakaoPasswordSecret=${{ secrets.KAKAO_PASSWORD_SECRET }} >> .env
+        echo NaverPasswordSecret=${{ secrets.NAVER_PASSWORD_SECRET }} >> .env
+        echo NaverClientId=${{ secrets.NAVER_CLIENT_ID }} >> .env
+        echo NaverClientSecret=${{ secrets.NAVER_CLIENT_SECRET }} >> .env
         cat .env
     
     - name: Set Dev env variables
