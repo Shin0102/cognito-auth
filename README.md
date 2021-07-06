@@ -18,7 +18,6 @@
 - 카카오 Flow와 거의 동일하나 access token을 가져오는 코드 추가
   (서버 사이드에서만 호출가능하도록 되어 있음)
 
----
 
 ## Getting Started
 
@@ -46,7 +45,6 @@ npm i
 npm run start
 ```
 
----
 
 ## Reference
 
