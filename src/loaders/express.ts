@@ -4,6 +4,7 @@ import routes from '../api';
 import config from '../config';
 import Logger from './logger';
 
+
 export default ({ app }: { app: express.Application }) => {
   /**
    * Health Check endpoints
