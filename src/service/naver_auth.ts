@@ -40,7 +40,7 @@ export default class NaverAuthService {
     if (query.type == 'signup') {
       // How to confirm user in Cognito User Pools without verifying email or phone?
       // https://stackoverflow.com/questions/47361948/how-to-confirm-user-in-cognito-user-pools-without-verifying-email-or-phone
-      const GroupName = config.naver.GroupName;
+      const GroupName = 'naver';
       const UserPoolId = config.cognito.UserPoolId;
       const ClientId = config.cognito.ClientId;
       const Username = 'naver_' + profileData.id.toString();

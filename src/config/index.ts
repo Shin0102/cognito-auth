@@ -36,14 +36,12 @@ export default {
   },
 
   kakao: {
-    GroupName: process.env.KakaoGroupName,
     PasswordSecret: process.env.KakaoPasswordSecret,
   },
 
   naver: {
     ClientId: process.env.NaverClientId,
     ClientSecret: process.env.NaverClientSecret,
-    GroupName: process.env.NaverGroupName,
     PasswordSecret: process.env.NaverPasswordSecret,
   },
 };
