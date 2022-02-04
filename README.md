@@ -2,22 +2,20 @@
 
 ## flow
 
-### 카카오
+### kakao
 
-1. 카카오 어플리케이션 세팅(required email)
-2. 카카오 로그인 성공(Frontend)
-3. 세팅한 Redirect URL로 Redirect(Frontend)
-4. 3번에서 받은 access_token을 {cognito-kakao-naver-auth-url}/auth/kakao로 전송
-5. 가져온 kakao id로 cognito 가입하고 kakao id return
-   - id: kakao id
-   - password: secret 값 + kakao id
-6. cognito login(Frontend)
+![kakao_login](https://github.com/e-veritime/cognito-auth/blob/main/kakao_login.PNG)
 
-### 네이버
+### naver
 
-- 카카오 Flow와 거의 동일하나 access token을 가져오는 코드 추가
-  (서버 사이드에서만 호출가능하도록 되어 있음)
+![naver_login](https://github.com/e-veritime/cognito-auth/blob/main/naver_login.PNG)
 
+> 카카오 Flow와 거의 동일하나 access token을 가져오는 코드 추가 (서버 사이드에서만 호출가능)
+
+## Endpoints
+
+- [kakao] : `POST /auth/kakao/`
+- [naver] : `POST /auth/naver/`
 
 ## Getting Started
 
@@ -44,7 +42,6 @@ cp .env.example .env
 npm i
 npm run start
 ```
-
 
 ## Reference
 
